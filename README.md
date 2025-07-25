@@ -31,7 +31,7 @@ El objetivo de esta tarea es implementar un sistema basado en microservicios par
 ## Requisitos Técnicos
 
 1. **Frontend**: 
-   - La plantilla incluida esta implementada con **React**, pero se puede utilizar como alternativa **Angular** si asi lo prefieren (es valido utilizar plantillas ya diseñadas).
+   - La plantilla incluida esta implementada con **React** (es valido utilizar plantillas ya diseñadas).
    - Desarrollado con **React** o **Next.js**.
    - Mostrar un listado de los archivos subidos con su estado de procesamiento, fecha de subida y cantidad de links procesados por archivo.
    - Mostrar un listado de los links scrapeados por archivo, incluyendo el contenido extraído.
