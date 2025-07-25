@@ -24,6 +24,7 @@ El objetivo de esta tarea es implementar un sistema basado en microservicios par
 
 - Se evaluará el uso de Clean Code, optimización y uso de buenas practicas de código.
 - Se evaluará el uso de Redis en la solución.
+- Se evaluará el uso de contenedores Docker para el despliegue de cada servicio y frontend.
 - Se valorará el uso de pruebas unitarias.
 - Se valorará el uso patrones de diseño.
 
@@ -34,6 +35,7 @@ El objetivo de esta tarea es implementar un sistema basado en microservicios par
    - Desarrollado con **React** o **Next.js**.
    - Mostrar un listado de los archivos subidos con su estado de procesamiento, fecha de subida y cantidad de links procesados por archivo.
    - Mostrar un listado de los links scrapeados por archivo, incluyendo el contenido extraído.
+   - Realizar despliegue en un contenedor docker.
    - BONUS ADICIONAL:
       - Permitir a los usuarios registrarse e iniciar sesión.
       - Listar archivos subidos por el usuario logueado.
