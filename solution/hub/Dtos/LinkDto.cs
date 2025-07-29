@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace hubs.Dtos
+namespace hub.Dtos
 {
     public class LinkResponseDto
     {

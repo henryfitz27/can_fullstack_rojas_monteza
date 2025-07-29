@@ -8,6 +8,7 @@ services:
       - "9010:5000"
     volumes:
       - ./hub:/app
+      - ./volumes/shared_files:/app/shared:rw
     env_file:
       - ./envs/.env.hub
     depends_on:
@@ -38,6 +39,46 @@ services:
     networks:
       - f1_network
     restart: "always"
+  
+  scraper-microservice:
+    container_name: f1_scraper
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    restart: always
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      # Expone el puerto de la API en 9020 en tu máquina
+      - "9020:8000"
+    volumes:
+      - ./scraper:/app
+      - ./volumes/shared_files:/app/shared:rw
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./envs/.env.scraper
+    networks:
+      - f1_network
+
+  celery-worker:
+    container_name: f1_celery_worker
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    restart: always
+    command: celery -A src.tasks:app worker --loglevel=info --concurrency=2
+    volumes:
+      - ./scraper:/app
+      - ./volumes/shared_files:/app/shared:rw
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./envs/.env.celery
+    networks:
+      - f1_network
+
 
 networks:
   f1_network:
