@@ -1,53 +1,17 @@
 services:
-
-  react:
-    container_name: f1_react
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "9999:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    environment:
-      - NODE_ENV=development
-    command: sh -c "pnpm install && pnpm dev"
-    networks:
-      - f1_network
-
   hub:
     container_name: f1_hub
     build:
       context: ./hub
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - "9010:5000"
     volumes:
-      - ./hub/src:/app/src
-      - /app/bin
-      - /app/obj
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=f1_postgres;Database=f1_database;Username=f1_sgcan;Password=f1_sgcan123456
+      - ./hub:/app
+    env_file:
+      - ./envs/.env.hub
     depends_on:
       - postgres
-    networks:
-      - f1_network
-
-  scraper:
-    container_name: f1_scraper
-    build:
-      context: ./scraper
-      dockerfile: Dockerfile
-    ports:
-      - "9020:8000"
-    volumes:
-      - ./scraper:/app
-    depends_on:
-      - postgres
-      - redis
     networks:
       - f1_network
 
