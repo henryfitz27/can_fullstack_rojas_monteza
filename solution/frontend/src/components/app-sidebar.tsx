@@ -21,16 +21,11 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Henry Rojas",
+    email: "henryfitz27@gmail.com",
+    avatar: "HR",
   },
   navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
     {
       title: "Archivos cargados",
       url: "/admin/files",

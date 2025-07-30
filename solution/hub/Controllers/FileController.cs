@@ -85,7 +85,7 @@ namespace hub.Controllers
                 }
 
                 // Validar tamaño del archivo (máximo 10MB)
-                const long maxFileSize = 10 * 1024 * 1024; // 10MB
+                const long maxFileSize = 1 * 1024 * 1024; // 1 MB
                 if (file.Length > maxFileSize)
                 {
                     return BadRequest("El archivo no puede exceder 10MB");
@@ -105,7 +105,7 @@ namespace hub.Controllers
                     FileName = file.FileName,
                     TotalProcessed = 0,
                     TotalFailed = 0,
-                    Status = "Pending",
+                    Status = "PENDING",
                     UploadedAt = DateTime.UtcNow,
                     UserId = userId
                 };

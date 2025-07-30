@@ -12,6 +12,7 @@ interface FilesTableProps {
 export default function FilesTable({ files }: FilesTableProps) {
   // Transformar los datos para mostrar solo los campos necesarios
   const transformedData: FileTableData[] = files.map((file) => ({
+    id: file.id,
     totalLinks: file.totalLinks,
     fileName: file.fileName,
     totalProcessed: file.totalProcessed,

@@ -2,7 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { FileTableData } from "@/types/files"
+import { Eye } from "lucide-react"
+import Link from "next/link"
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -120,5 +123,24 @@ export const columns: ColumnDef<FileTableData>[] = [
       )
     },
     enableSorting: true,
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const fileId = row.original.id
+      return (
+        <div className="text-center">
+          <Link href={`/admin/files/${fileId}`}>
+            <Button variant="outline" size="sm">
+              <Eye className="w-4 h-4 mr-2" />
+              Ver links
+            </Button>
+          </Link>
+        </div>
+      )
+    },
+    enableSorting: false,
+    enableHiding: false,
   },
 ]

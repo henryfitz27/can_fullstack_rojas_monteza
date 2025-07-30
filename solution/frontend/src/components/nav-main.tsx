@@ -1,8 +1,7 @@
 "use client"
 
-import { IconCirclePlusFilled, type Icon } from "@tabler/icons-react"
+import { IconCircleArrowUp,  type Icon } from "@tabler/icons-react"
 
-import { Button } from "@/components/ui/button"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,7 +9,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { File } from "lucide-react"
 import Link from "next/link"
 
 export function NavMain({
@@ -28,19 +26,19 @@ export function NavMain({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
-              tooltip="Quick Create"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+              tooltip="Quick Create"              
             >
-              <IconCirclePlusFilled />
-              <span>Procesar archivo</span>
+              <Link
+                href="/admin/files/create"
+                className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90  px-3 py-2 rounded-full w-full"
+              >
+               
+                <IconCircleArrowUp />
+                <span>Cargar Archivo</span>
+              </Link>
+              
             </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-            >
-              <File />              
-            </Button>
+        
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>

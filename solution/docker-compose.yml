@@ -10,12 +10,30 @@ services:
       - ./hub:/app
       - ./volumes/shared_files:/app/shared:rw
     env_file:
+      - ./envs/.env.postgres
       - ./envs/.env.hub
     depends_on:
       - postgres
     networks:
       - f1_network
 
+  react:
+    container_name: f1_react
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "9999:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - ./envs/.env.frontend
+    environment:
+      - NODE_ENV=development
+    networks:
+      - f1_network
   postgres:
     image: postgres:14
     container_name: f1_postgres
@@ -57,6 +75,7 @@ services:
       - postgres
       - redis
     env_file:
+      - ./envs/.env.postgres
       - ./envs/.env.scraper
     networks:
       - f1_network
@@ -75,6 +94,7 @@ services:
       - postgres
       - redis
     env_file:
+      - ./envs/.env.postgres
       - ./envs/.env.celery
     networks:
       - f1_network

@@ -1,1 +1,1 @@
-export { getFiles } from "./files"
+export { getFiles, getFileLinks } from "./files"
