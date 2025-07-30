@@ -9,6 +9,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cargar variables de entorno desde archivo .env si existe
+LoadEnvironmentVariables();
+
 // Configurar CORS
 builder.Services.AddCors(options =>
 {
@@ -27,6 +30,9 @@ builder.Services.AddCors(options =>
 // Configurar Entity Framework con PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Registrar HttpClient para llamadas externas
+builder.Services.AddHttpClient();
 
 // Registrar repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -83,6 +89,26 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void LoadEnvironmentVariables()
+{
+    var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+    if (File.Exists(envFile))
+    {
+        var lines = File.ReadAllLines(envFile);
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                continue;
+
+            var parts = line.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim());
+            }
+        }
+    }
+}
 
 static async Task ApplyMigrationsAsync(WebApplication app)
 {

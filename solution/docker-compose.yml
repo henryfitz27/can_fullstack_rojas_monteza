@@ -99,6 +99,21 @@ services:
     networks:
       - f1_network
 
+  notifier:
+    container_name: f1_notifier
+    build:
+      context: ./notifier
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./notifier:/app
+    depends_on:
+      - redis
+    env_file:
+      - ./envs/.env.notifier
+    networks:
+      - f1_network
+
 
 networks:
   f1_network:

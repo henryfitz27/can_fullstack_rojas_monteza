@@ -22,6 +22,7 @@ EXPOSE 8000
 # Variables de entorno por defecto (pueden ser sobrescritas)
 ENV DOCKER_ENV=true
 ENV PYTHONPATH=/app
+ENV CORS_ORIGINS=*
 
 # Comando por defecto (con --reload para desarrollo)
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

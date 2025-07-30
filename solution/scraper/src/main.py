@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.orm import Session
 from .apps.scraper import scrape_url
-from .settings import get_db, engine, Base
+from .settings import get_db, engine, Base, CORS_ORIGINS
 from .models import Link, File
 from .tasks import process_file_task
 import logging
@@ -24,7 +24,7 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite todas las origins en desarrollo
+    allow_origins=CORS_ORIGINS,  # Orígenes permitidos desde variables de entorno
     allow_credentials=True,
     allow_methods=["*"],  # Permite todos los métodos (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Permite todos los headers
@@ -33,6 +33,7 @@ app.add_middleware(
 # Modelo para la petición POST del endpoint /process
 class ProcessRequest(BaseModel):
     file_id: int
+    email: str
 
 
 @app.get("/")
@@ -85,9 +86,9 @@ async def process_file(request: ProcessRequest, db: Session = Depends(get_db)):
             )
         
         # Iniciar la tarea de Celery
-        task = process_file_task.delay(request.file_id)
+        task = process_file_task.delay(request.file_id, request.email)
         
-        logger.info(f"Tarea de Celery iniciada con ID: {task.id} para archivo: {request.file_id}")
+        logger.info(f"Tarea de Celery iniciada con ID: {task.id} para archivo: {request.file_id} - Email: {request.email}")
         
         return {
             "message": "Procesamiento iniciado",

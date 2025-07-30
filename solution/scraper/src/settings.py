@@ -27,6 +27,12 @@ if not os.getenv('DOCKER_ENV') and POSTGRES_HOST == "localhost":
 
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
+# Configuración CORS
+# Permitir orígenes específicos desde variables de entorno
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+# Limpiar espacios en blanco de cada origen
+CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS]
+
 # Log de la configuración para debugging
 logger.info(f"Configuración de base de datos:")
 logger.info(f"  - Host: {POSTGRES_HOST}")
@@ -34,6 +40,8 @@ logger.info(f"  - Puerto: {POSTGRES_PORT}")
 logger.info(f"  - Base de datos: {POSTGRES_DB}")
 logger.info(f"  - Usuario: {POSTGRES_USER}")
 logger.info(f"  - Entorno Docker: {bool(os.getenv('DOCKER_ENV'))}")
+logger.info(f"Configuración CORS:")
+logger.info(f"  - Orígenes permitidos: {CORS_ORIGINS}")
 
 # Crear el motor de SQLAlchemy
 engine = create_engine(DATABASE_URL)

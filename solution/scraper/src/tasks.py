@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 import os
 import logging
+import redis
+import json
 from typing import List
 
 from .settings import get_db, SessionLocal
@@ -45,15 +47,44 @@ app.conf.update(
     worker_max_tasks_per_child=1000,
 )
 
+def publish_processing_complete(file_id: int, email: str, results: dict):
+    """
+    Publica un mensaje en Redis cuando se completa el procesamiento
+    
+    Args:
+        file_id (int): ID del archivo procesado
+        email (str): Email para notificación
+        results (dict): Resultados del procesamiento
+    """
+    try:
+        # Conectar a Redis
+        redis_client = redis.Redis(
+            host=REDIS_HOST,
+            port=int(REDIS_PORT),
+            db=0,
+            decode_responses=True
+        )
+        
+        # Preparar el mensaje
+        message = {
+            "file_id": file_id,
+            "email": email,
+            "processing_results": results,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # Publicar en el canal "processing_complete"
+        channel = "processing_complete"
+        redis_client.publish(channel, json.dumps(message))
+        
+        logger.info(f"Mensaje publicado en Redis - Canal: {channel}, File ID: {file_id}, Email: {email}")
+        
+    except Exception as e:
+        logger.error(f"Error al publicar en Redis: {str(e)}")
+
 def read_urls_from_file(file_path: str) -> List[str]:
     """
     Lee las URLs de un archivo de texto o CSV
-    
-    Args:
-        file_path (str): Ruta del archivo a leer
-        
-    Returns:
-        List[str]: Lista de URLs encontradas en el archivo
     """
     urls = []
     try:
@@ -69,12 +100,13 @@ def read_urls_from_file(file_path: str) -> List[str]:
         raise
 
 @app.task(bind=True)
-def process_file_task(self, file_id: int):
+def process_file_task(self, file_id: int, email: str):
     """
     Tarea principal que procesa un archivo completo de URLs
     
     Args:
         file_id (int): ID del archivo en la base de datos
+        email (str): Email para notificación de finalización
         
     Returns:
         dict: Resultado del procesamiento
@@ -222,6 +254,9 @@ def process_file_task(self, file_id: int):
             "failed": failed_count,
             "status": "PROCESSED"
         }
+
+        # Publicar en Redis que el procesamiento ha terminado
+        publish_processing_complete(file_id, email, result_summary)
         
         logger.info(f"Procesamiento completado para archivo {file_id}: {result_summary}")
         return result_summary

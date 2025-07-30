@@ -22,12 +22,14 @@ const getStatusColor = (status: string) => {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
+  // Usar UTC para evitar problemas de hidratación entre servidor y cliente
   return date.toLocaleDateString("es-ES", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC"
   })
 }
 

@@ -19,7 +19,8 @@ export function LinksAccordion({ links }: LinksAccordionProps) {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: "UTC"
     })
   }
 

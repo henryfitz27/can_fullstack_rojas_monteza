@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using hub.Interfaces;
 using hub.Dtos;
 using FileModel = hub.Models.File;
@@ -14,12 +16,14 @@ namespace hub.Controllers
         private readonly IFileRepository _fileRepository;
         private readonly ILogger<FileController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
-        public FileController(IFileRepository fileRepository, ILogger<FileController> logger, IConfiguration configuration)
+        public FileController(IFileRepository fileRepository, ILogger<FileController> logger, IConfiguration configuration, HttpClient httpClient)
         {
             _fileRepository = fileRepository;
             _logger = logger;
             _configuration = configuration;
+            _httpClient = httpClient;
         }
 
         /// <summary>
@@ -70,6 +74,14 @@ namespace hub.Controllers
                     return Unauthorized("Token inválido");
                 }
 
+                // Obtener el email del usuario desde los claims del JWT
+                var emailClaim = User.FindFirst(ClaimTypes.Email);
+                if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
+                {
+                    _logger.LogWarning("No se pudo obtener el email del usuario desde el token JWT");
+                    return Unauthorized("Token inválido - email no encontrado");
+                }
+
                 // Validaciones del archivo
                 if (file == null || file.Length == 0)
                 {
@@ -112,13 +124,18 @@ namespace hub.Controllers
 
                 var createdFile = await _fileRepository.CreateFileAsync(fileRecord);
 
+                // Enviar petición POST al servicio de procesamiento
+                var processResponse = await SendProcessRequest(emailClaim.Value, createdFile.Id);
+                
                 var response = new FileUploadResponseDto
                 {
                     Id = createdFile.Id,
                     FileName = createdFile.FileName,
                     Status = createdFile.Status,
                     UploadedAt = createdFile.UploadedAt,
-                    Message = "Archivo subido exitosamente y en cola para procesamiento"
+                    Message = processResponse ? 
+                        "Archivo subido exitosamente y enviado para procesamiento" : 
+                        "Archivo subido exitosamente pero no se pudo enviar para procesamiento"
                 };
 
                 _logger.LogInformation("Archivo {FileName} subido exitosamente por usuario {UserId} con ID {FileId}", 
@@ -217,6 +234,66 @@ namespace hub.Controllers
 
             // Fallback: crear carpeta en el directorio de la aplicación
             return Path.Combine(AppContext.BaseDirectory, "uploads");
+        }
+
+        /// <summary>
+        /// Envía una petición POST al servicio de procesamiento
+        /// </summary>
+        /// <param name="email">Email del usuario</param>
+        /// <param name="fileId">ID del archivo a procesar</param>
+        /// <returns>True si la petición fue exitosa, false en caso contrario</returns>
+        private async Task<bool> SendProcessRequest(string email, int fileId)
+        {
+            try
+            {
+                // Obtener la URL del servicio de procesamiento desde variables de entorno o configuración
+                var baseUrl = Environment.GetEnvironmentVariable("PROCESSING_SERVICE_BASE_URL") 
+                            ?? _configuration["ProcessingService:BaseUrl"];
+                var endpoint = Environment.GetEnvironmentVariable("PROCESSING_SERVICE_ENDPOINT") 
+                             ?? _configuration["ProcessingService:ProcessEndpoint"];
+                
+                if (string.IsNullOrEmpty(baseUrl) || string.IsNullOrEmpty(endpoint))
+                {
+                    _logger.LogError("URL del servicio de procesamiento no configurada");
+                    return false;
+                }
+
+                var processUrl = $"{baseUrl.TrimEnd('/')}{endpoint}";
+
+                // Crear el payload para la petición
+                var payload = new
+                {
+                    email = email,
+                    file_id = fileId
+                };
+
+                var jsonContent = JsonSerializer.Serialize(payload);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                _logger.LogInformation("Enviando petición de procesamiento a {Url} para archivo {FileId} y usuario {Email}", 
+                    processUrl, fileId, email);
+
+                // Enviar la petición POST
+                var response = await _httpClient.PostAsync(processUrl, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Petición de procesamiento enviada exitosamente para archivo {FileId}", fileId);
+                    return true;
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Error en la petición de procesamiento para archivo {FileId}. Status: {StatusCode}, Content: {Content}", 
+                        fileId, response.StatusCode, errorContent);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Excepción al enviar petición de procesamiento para archivo {FileId}", fileId);
+                return false;
+            }
         }
     }
 }
