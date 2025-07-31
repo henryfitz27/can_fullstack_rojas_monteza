@@ -24,24 +24,23 @@ services:
       - f1_network
 
   react:
-    container_name: f1_react_prod # Se recomienda un nombre diferente para producción
+    container_name: f1_react
     build:
       context: ./frontend
-      # Asegúrate de que este apunte a tu Dockerfile de producción
       dockerfile: Dockerfile
-      args:
-        - NEXTAUTH_URL=http://localhost:9999
-        - NEXTAUTH_URL_INTERNAL=http://f1_react_prod:3000
-        - NEXTAUTH_SECRET=mi-super-secreto-unico-para-desarrollo-2025-sgcan
-        - API_BASE_URL=http://f1_hub:5000
     ports:
       - "9999:3000"
-    # No se usan volúmenes en producción para asegurar que se ejecute
-    # el código que fue compilado dentro de la imagen.
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     env_file:
       - ./envs/.env.frontend
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
+    depends_on:
+      hub:
+        condition: service_healthy
     networks:
       - f1_network
   postgres:

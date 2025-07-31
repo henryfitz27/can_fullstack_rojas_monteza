@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema, type LoginFormData } from "@/schemas/login"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export function LoginForm({
   className,
@@ -34,16 +35,23 @@ export function LoginForm({
     setError("")
 
     try {
+      console.log("Attempting login with:", { email: data.email })
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       })
 
+      console.log("Login result:", result)
+
       if (result?.error) {
+        console.error("Login error:", result.error)
         setError("Credenciales inválidas")
-      } else {
+      } else if (result?.ok) {
+        console.log("Login successful, redirecting to /admin")
+        toast.success("Inicio de sesión exitoso")
         router.push("/admin") // Redirigir al dashboard después del login
+        router.refresh() // Forzar actualización
       }
     } catch (error) {
       setError("Error al iniciar sesión")

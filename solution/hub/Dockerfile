@@ -11,7 +11,7 @@ RUN dotnet tool install --global dotnet-ef
 COPY hub.csproj ./
 RUN dotnet restore
 
-# Copy the entire source code
+# Copy the source code (excluding files in .dockerignore)
 COPY . .
 
 # Create shared directory and set permissions

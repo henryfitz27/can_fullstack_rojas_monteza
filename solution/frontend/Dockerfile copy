@@ -1,0 +1,30 @@
+# Dockerfile para Desarrollo
+
+FROM node:18-alpine
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Instala pnpm
+RUN npm install -g pnpm
+
+# Copia solo los archivos de manifiesto para aprovechar el caché
+COPY package.json pnpm-lock.yaml* ./
+
+# Instala todas las dependencias
+# Usamos --frozen-lockfile para asegurar instalaciones consistentes
+RUN pnpm install --frozen-lockfile
+
+# Copia el resto del código fuente.
+# En desarrollo, esto se sobrescribirá con un volumen,
+# pero es útil para la compilación inicial.
+COPY . .
+
+# Expone el puerto para el servidor de desarrollo
+EXPOSE 3000
+
+# Desactiva la telemetría de Next.js
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Inicia el servidor de desarrollo
+CMD ["pnpm", "dev"]

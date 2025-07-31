@@ -77,6 +77,14 @@ export const authOptions: NextAuthOptions = {
       session.expiresAt = token.expiresAt as string
       return session
     },
+    async redirect({ url, baseUrl }) {
+      // Si la URL es relativa, añadir el baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Si la URL pertenece al mismo origen, permitir la redirección
+      if (new URL(url).origin === baseUrl) return url
+      // De lo contrario, redirigir al baseUrl
+      return baseUrl
+    },
   },
   pages: {
     signIn: "/login",
@@ -87,6 +95,18 @@ export const authOptions: NextAuthOptions = {
   },
   jwt: {
     maxAge: 24 * 60 * 60, // 24 horas
+  },
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Deshabilitamos HTTPS para localhost en Docker
+        domain: undefined, // No restringir dominio para localhost
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

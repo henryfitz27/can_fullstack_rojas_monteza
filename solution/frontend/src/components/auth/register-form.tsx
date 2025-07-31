@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema, type RegisterFormData } from "@/schemas/auth"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function RegisterForm({
   className,
@@ -49,6 +50,7 @@ export function RegisterForm({
       }
 
       // Registro exitoso, redirigir al login
+      toast.success("Cuenta creada exitosamente")
       router.push("/login")
     } catch (error) {
       setError("Error al crear la cuenta. Inténtalo de nuevo.")

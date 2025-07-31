@@ -41,7 +41,7 @@ builder.Services.AddScoped<IFileRepository, FileRepository>();
 // Registrar servicio JWT
 builder.Services.AddScoped<IJwtService, JwtService>();
 
-// Configurar autenticaciÛn JWT
+// Configurar autenticaci√≥n JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -68,7 +68,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Aplicar migraciones autom·ticamente
+// Aplicar migraciones autom√°ticamente
 await ApplyMigrationsAsync(app);
 
 // Configure the HTTP request pipeline.
@@ -117,19 +117,19 @@ static async Task ApplyMigrationsAsync(WebApplication app)
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-    // Leer configuraciÛn de base de datos
+    // Leer configuraci√≥n de base de datos
     var autoMigrate = configuration.GetValue<bool>("Database:AutoMigrate", app.Environment.IsDevelopment());
     var ensureCreated = configuration.GetValue<bool>("Database:EnsureCreated", app.Environment.IsDevelopment());
 
     if (!autoMigrate && !ensureCreated)
     {
-        logger.LogInformation("Las migraciones autom·ticas est·n deshabilitadas.");
+        logger.LogInformation("Las migraciones autom√°ticas est√°n deshabilitadas.");
         return;
     }
 
     try
     {
-        logger.LogInformation("Iniciando aplicaciÛn de migraciones...");
+        logger.LogInformation("Iniciando aplicaci√≥n de migraciones...");
 
         // Verificar si la base de datos puede conectarse
         var canConnect = await context.Database.CanConnectAsync();
@@ -161,14 +161,13 @@ static async Task ApplyMigrationsAsync(WebApplication app)
     {
         logger.LogError(ex, "Error al aplicar migraciones: {Message}", ex.Message);
 
-        // En desarrollo, puedes decidir si quieres que falle la aplicaciÛn
+        // En desarrollo, puedes decidir si quieres que falle la aplicaci√≥n
         if (app.Environment.IsDevelopment())
         {
-            throw; // Re-lanza la excepciÛn para detener la aplicaciÛn
+            throw; // Re-lanza la excepci√≥n para detener la aplicaci√≥n
         }
 
-        // En producciÛn, registra el error pero permite que la aplicaciÛn contin˙e
-        logger.LogWarning("La aplicaciÛn continuar· sin aplicar migraciones.");
+        // En producci√≥n, registra el error pero permite que la aplicaci√≥n contin√∫e
+        logger.LogWarning("La aplicaci√≥n continuar√° sin aplicar migraciones.");
     }
 }
-

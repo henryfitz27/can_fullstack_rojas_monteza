@@ -1,0 +1,37 @@
+# Visual Studio / VS Code files (main culprits for memory issues)
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Build outputs (not source files)
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# Temporary files
+*.tmp
+*.log
+.localhistory/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Git
+.git/
+.gitignore
+
+# Node modules (if any)
+node_modules/
+
+# Keep all source files, project files, and resources
+!*.cs
+!*.csproj
+!*.sln
+!*.json
+!*.resx
+!*.xml
+!*.config
