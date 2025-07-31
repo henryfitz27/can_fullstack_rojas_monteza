@@ -1,45 +1,28 @@
-# Use the official .NET 8 SDK image for building
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Dockerfile para desarrollo con hot reload
+FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 # Set the working directory
-WORKDIR /src
+WORKDIR /app
 
-# Copy the project file and restore dependencies
+# Install dotnet dev tools
+RUN dotnet tool install --global dotnet-ef
+
+# Copy project file and restore dependencies
 COPY hub.csproj ./
 RUN dotnet restore
 
 # Copy the entire source code
 COPY . .
 
-# Build the application
-RUN dotnet build "hub.csproj" -c Release -o /app/build
+# Create shared directory and set permissions
+RUN mkdir -p /app/shared && chmod 755 /app/shared
 
-# Publish the application
-FROM build AS publish
-RUN dotnet publish "hub.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-# Use the official .NET 8 runtime image for the final stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
-
-# Set the working directory
-WORKDIR /app
-
-# Create a non-root user for security
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
-USER appuser
-
-# Copy the published application from the build stage
-COPY --from=publish /app/publish .
-
-# Create directory for file uploads
-RUN mkdir -p /app/files
-
-# Expose the port that the application listens on
+# Expose the port
 EXPOSE 5000
 
-# Set environment variables
+# Set environment variables for development
 ENV ASPNETCORE_URLS=http://+:5000
-ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_ENVIRONMENT=Development
 
-# Define the entry point
-ENTRYPOINT ["dotnet", "hub.dll"]
+# Use dotnet watch for hot reload in development
+ENTRYPOINT ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5000"]

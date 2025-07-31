@@ -1,9 +1,7 @@
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/auth"
-import { signOut } from "next-auth/react"
 import SignOut from "@/components/auth/sign-out"
 
 export default async function AdminPage() {

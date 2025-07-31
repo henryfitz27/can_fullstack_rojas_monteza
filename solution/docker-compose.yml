@@ -3,7 +3,7 @@ services:
     container_name: f1_hub
     build:
       context: ./hub
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "9010:5000"
     volumes:
@@ -21,7 +21,7 @@ services:
     container_name: f1_react
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "9999:3000"
     volumes:
